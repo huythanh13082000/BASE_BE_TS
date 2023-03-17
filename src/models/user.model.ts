@@ -1,8 +1,8 @@
-import {Schema, model, Document} from 'mongoose'
+import mongoose, {Schema, model, Document} from 'mongoose'
 import Joi from 'joi'
 import {UserType} from '../interface/user.type'
 
-const UserSchema = new Schema<UserType>({
+const userSchema = new Schema<UserType>({
   username: {type: String, required: true},
   email: {type: String, required: true, unique: true},
   password: {type: String, required: true},
@@ -10,7 +10,7 @@ const UserSchema = new Schema<UserType>({
   updatedAt: {type: Date, default: Date.now},
 })
 
-export default model<UserType>('User', UserSchema)
+export const UserModel = mongoose.model<UserType>('User', userSchema);
 
 export const validateUser = (user: UserType): Joi.ValidationResult => {
   const schema = Joi.object({
