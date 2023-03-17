@@ -5,10 +5,12 @@ import {UserModel} from '../models/user.model'
 import {UserType} from '../interface/user.type'
 import {userSchema} from '../validation/user.validation'
 import {pick} from 'lodash'
+import logger from '../logs/logger'
 
 const createNew = async (userData: UserType) => {
   const {error} = userSchema.validate(userData)
   if (error) {
+    logger.error(error)
     throw new Error(error.message)
   }
   const saltRounds = 10
