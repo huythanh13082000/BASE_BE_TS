@@ -7,8 +7,6 @@ dotenv.config()
 
 const app = express()
 
-console.log(process.env.APP_HOST)
-
 connectMongoDB()
   .then(() => {
     console.log('Connected successfully to database!')
@@ -28,5 +26,5 @@ const bootServer = () => {
     console.log(`Open http://${host}:${port}`)
   })
   app.use(express.json())
-  app.use('/api/v1', userRoute)
+  app.use('/api/v1/users', userRoute)
 }
