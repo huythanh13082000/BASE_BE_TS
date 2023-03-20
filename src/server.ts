@@ -5,7 +5,7 @@ import {userRoute} from './routers/v1/user.route'
 const jwt = require('jsonwebtoken')
 dotenv.config()
 
-const app = express()
+export const app = express()
 
 connectMongoDB()
   .then(() => {
