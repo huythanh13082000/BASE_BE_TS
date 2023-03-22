@@ -4,4 +4,6 @@ export interface UserType extends Document {
   password: string
   createdAt: Date
   updatedAt: Date
+  account_type: 0 | 1 | 2
+  phone: string
 }
