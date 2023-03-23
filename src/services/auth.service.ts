@@ -7,10 +7,10 @@ import {userSchema} from '../validation/user.validation'
 import {pick} from 'lodash'
 import logger from '../logs/logger'
 import {AuthModel} from '../models/auth'
-import {authShema} from '../validation/auth.validation'
+import {authSchema} from '../validation/auth.validation'
 
 const register = async (registerData: UserType) => {
-  const {error} = authShema.validate(registerData)
+  const {error} = authSchema.registerSchema.validate(registerData)
   if (error) {
     logger.error(error)
     throw new Error(error.message)
@@ -20,8 +20,28 @@ const register = async (registerData: UserType) => {
   const user = await AuthModel.create({...registerData, password: hashPassWord})
   return {
     data: pick(user, ['username', 'email', 'createdAt', 'updatedAt']),
-    description: 'register Success!',
+    message: 'register Success!',
   }
 }
 
-export const authService = {register}
+const login = async (loginData: UserType) => {
+  const {error} = authSchema.loginSchema.validate(loginData)
+  if (error) {
+    logger.error(error)
+    throw new Error('Username Or Password Wrong!')
+  }
+  const user = await AuthModel.findOne({username: loginData.username})
+  if (!user) {
+    throw new Error('Username Or Password Wrong!')
+  }
+  const checkPassword = bcrypt.compareSync(loginData.password, user.password)
+  console.log(checkPassword)
+  if (checkPassword) {
+    return {
+      description: 'Login Success',
+    }
+  } else {
+  }
+}
+
+export const authService = {register, login}

@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-export const authShema = Joi.object({
+const registerSchema = Joi.object({
   username: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
@@ -8,3 +8,8 @@ export const authShema = Joi.object({
     .pattern(/^\d{10}$/)
     .required(),
 })
+const loginSchema = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string().min(6).required(),
+})
+export const authSchema = {registerSchema, loginSchema}

@@ -1,10 +1,11 @@
 import {Request, Response} from 'express'
 import {authService} from '../services/auth.service'
 import {HttpStatusCode} from '../utils/constants'
+import {handleErrors} from '../utils/handleError'
 
 const register = async (req: Request, res: Response) => {
   try {
-    const result = await authService.register(req.body)
+    const result = await handleErrors(authService.register(req.body))
     return res.status(HttpStatusCode.OK).json(result)
   } catch (error: any) {
     return res.status(HttpStatusCode.INTERNAL_SERVER).json({
@@ -12,4 +13,14 @@ const register = async (req: Request, res: Response) => {
     })
   }
 }
-export const authController = {register}
+const login = async (req: Request, res: Response) => {
+  try {
+    const result = await authService.login(req.body)
+    return res.status(HttpStatusCode.OK).json(result)
+  } catch (error: any) {
+    return res.status(HttpStatusCode.INTERNAL_SERVER).json({
+      errors: error.message,
+    })
+  }
+}
+export const authController = {register, login}
