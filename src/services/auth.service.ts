@@ -13,14 +13,33 @@ const register = async (registerData: UserType) => {
   const {error} = authSchema.registerSchema.validate(registerData)
   if (error) {
     logger.error(error)
-    throw new Error(error.message)
+    return {message: error.message}
   }
   const saltRounds = 10
   const hashPassWord = bcrypt.hashSync(registerData.password, saltRounds)
-  const user = await AuthModel.create({...registerData, password: hashPassWord})
-  return {
-    data: pick(user, ['username', 'email', 'createdAt', 'updatedAt']),
-    message: 'register Success!',
+  let arrayResult: any[] = []
+  await Promise.all([
+    AuthModel.findOne({username: registerData.username}),
+    AuthModel.findOne({email: registerData.email}),
+    AuthModel.findOne({phone: registerData.phone}),
+  ]).then((values) => {
+    arrayResult = [...values]
+  })
+  if (arrayResult[0]) {
+    return {message: 'Account already exists!'}
+  } else if (arrayResult[1]) {
+    return {message: 'email already exists!'}
+  } else if (arrayResult[2]) {
+    return {message: 'phone number already exists!'}
+  } else {
+    const user = await AuthModel.create({
+      ...registerData,
+      password: hashPassWord,
+    })
+    return {
+      data: pick(user, ['username', 'email', 'createdAt', 'updatedAt']),
+      message: 'register Success!',
+    }
   }
 }
 
