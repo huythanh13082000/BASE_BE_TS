@@ -5,11 +5,9 @@ import {handleErrors} from '../utils/handleError'
 
 const register = async (req: Request, res: Response) => {
   const [result, error] = await handleErrors(authService.register(req.body))
-  console.log(error)
-  if (error) {
-    return res.status(HttpStatusCode.INTERNAL_SERVER).json(error)
-  }
-  return res.status(HttpStatusCode.OK).json(result)
+  if (!error) {
+    return res.status(HttpStatusCode.INTERNAL_SERVER).json(result)
+  } else return res.status(HttpStatusCode.OK).json(result)
 }
 const login = async (req: Request, res: Response) => {
   try {

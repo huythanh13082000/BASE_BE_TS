@@ -28,9 +28,9 @@ const register = async (registerData: UserType) => {
   if (arrayResult[0]) {
     return {message: 'Account already exists!'}
   } else if (arrayResult[1]) {
-    return {message: 'email already exists!'}
+    return {message: 'Email already exists!'}
   } else if (arrayResult[2]) {
-    return {message: 'phone number already exists!'}
+    return {message: 'Phone number already exists!'}
   } else {
     const user = await AuthModel.create({
       ...registerData,
