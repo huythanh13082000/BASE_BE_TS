@@ -8,13 +8,15 @@ import {pick} from 'lodash'
 import logger from '../logs/logger'
 import {AuthModel} from '../models/auth'
 import {authSchema} from '../validation/auth.validation'
+import {generateToken} from '../utils/generateToken'
 
 const register = async (registerData: UserType) => {
   const {error} = authSchema.registerSchema.validate(registerData)
   if (error) {
     logger.error(error)
-    return {message: error.message}
+    throw new Error(error.message)
   }
+  let data = {}
   const saltRounds = 10
   const hashPassWord = bcrypt.hashSync(registerData.password, saltRounds)
   let arrayResult: any[] = []
@@ -22,25 +24,28 @@ const register = async (registerData: UserType) => {
     AuthModel.findOne({username: registerData.username}),
     AuthModel.findOne({email: registerData.email}),
     AuthModel.findOne({phone: registerData.phone}),
-  ]).then((values) => {
-    arrayResult = [...values]
-  })
-  if (arrayResult[0]) {
-    return {message: 'Account already exists!'}
-  } else if (arrayResult[1]) {
-    return {message: 'Email already exists!'}
-  } else if (arrayResult[2]) {
-    return {message: 'Phone number already exists!'}
-  } else {
-    const user = await AuthModel.create({
-      ...registerData,
-      password: hashPassWord,
+  ])
+    .then(async (values) => {
+      arrayResult = [...values]
+      if (arrayResult[0]) {
+        throw new Error('Account already exists!')
+      } else if (arrayResult[1]) {
+        throw new Error('Email already exists!')
+      } else if (arrayResult[2]) {
+        throw new Error('Phone number already exists!')
+      } else {
+        const user = await AuthModel.create({
+          ...registerData,
+          password: hashPassWord,
+        })
+        data = {...pick(user, ['username', 'email', 'createdAt', 'updatedAt'])}
+      }
     })
-    return {
-      data: pick(user, ['username', 'email', 'createdAt', 'updatedAt']),
-      message: 'register Success!',
-    }
-  }
+    .catch((err) => {
+      throw new Error(err)
+    })
+
+  return data
 }
 
 const login = async (loginData: UserType) => {
@@ -49,17 +54,17 @@ const login = async (loginData: UserType) => {
     logger.error(error)
     throw new Error('Username Or Password Wrong!')
   }
+  let result: any = {}
   const user = await AuthModel.findOne({username: loginData.username})
   if (!user) {
     throw new Error('Username Or Password Wrong!')
   }
   const checkPassword = bcrypt.compareSync(loginData.password, user.password)
-  console.log(checkPassword)
   if (checkPassword) {
-    return {
-      description: 'Login Success',
-    }
+    const tokens = generateToken({userId: user._id.toString()})
+    return (result = {...tokens})
   } else {
+    throw new Error('Username Or Password Wrong!')
   }
 }
 

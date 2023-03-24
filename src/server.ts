@@ -1,10 +1,9 @@
 import express from 'express'
 import dotenv from 'dotenv'
+dotenv.config()
 import {connectMongoDB} from './config/mongodb'
 import {userRoute} from './routers/v1/user.route'
 import {authRoute} from './routers/v1/auth.route'
-const jwt = require('jsonwebtoken')
-dotenv.config()
 
 export const app = express()
 
