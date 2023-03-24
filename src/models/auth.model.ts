@@ -1,5 +1,3 @@
-// auth.model.ts
-import {number} from 'joi'
 import {Schema, model} from 'mongoose'
 
 const authSchema = new Schema({
