@@ -1,6 +1,6 @@
 import {Request, Response} from 'express'
+import {HttpStatusCode} from '../constants'
 import {userService} from '../services/user.service'
-import {HttpStatusCode} from '../utils/constants'
 
 const createNew = async (req: Request, res: Response) => {
   try {

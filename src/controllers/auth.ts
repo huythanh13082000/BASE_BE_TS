@@ -1,6 +1,6 @@
 import {Request, Response} from 'express'
+import { HttpStatusCode } from '../constants'
 import {authService} from '../services/auth.service'
-import {HttpStatusCode} from '../utils/constants'
 import {handleErrors} from '../utils/handleError'
 
 const register = async (req: Request, res: Response) => {
