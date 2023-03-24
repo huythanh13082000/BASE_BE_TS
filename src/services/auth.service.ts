@@ -1,14 +1,11 @@
-import jwt from 'jsonwebtoken'
-import dotenv from 'dotenv/config'
 import bcrypt from 'bcrypt'
-import {UserModel} from '../models/user.model'
-import {UserType} from '../interface/user.type'
-import {userSchema} from '../validation/user.validation'
 import {pick} from 'lodash'
+import {UserType} from '../interface/user.type'
 import logger from '../logs/logger'
-import {AuthModel} from '../models/auth'
-import {authSchema} from '../validation/auth.validation'
+import authModel from '../models/auth.model'
+import {UserModel} from '../models/user.model'
 import {generateToken} from '../utils/generateToken'
+import {authSchema} from '../validation/auth.validation'
 
 const register = async (registerData: UserType) => {
   const {error} = authSchema.registerSchema.validate(registerData)
@@ -21,9 +18,9 @@ const register = async (registerData: UserType) => {
   const hashPassWord = bcrypt.hashSync(registerData.password, saltRounds)
   let arrayResult: any[] = []
   await Promise.all([
-    AuthModel.findOne({username: registerData.username}),
-    AuthModel.findOne({email: registerData.email}),
-    AuthModel.findOne({phone: registerData.phone}),
+    UserModel.findOne({username: registerData.username}),
+    UserModel.findOne({email: registerData.email}),
+    UserModel.findOne({phone: registerData.phone}),
   ])
     .then(async (values) => {
       arrayResult = [...values]
@@ -34,7 +31,7 @@ const register = async (registerData: UserType) => {
       } else if (arrayResult[2]) {
         throw new Error('Phone number already exists!')
       } else {
-        const user = await AuthModel.create({
+        const user = await UserModel.create({
           ...registerData,
           password: hashPassWord,
         })
@@ -55,13 +52,18 @@ const login = async (loginData: UserType) => {
     throw new Error('Username Or Password Wrong!')
   }
   let result: any = {}
-  const user = await AuthModel.findOne({username: loginData.username})
+  const user = await UserModel.findOne({username: loginData.username})
   if (!user) {
     throw new Error('Username Or Password Wrong!')
   }
   const checkPassword = bcrypt.compareSync(loginData.password, user.password)
   if (checkPassword) {
     const tokens = generateToken({userId: user._id.toString()})
+    await authModel.create({
+      userId: user._id,
+      expiresIn: tokens.expRefreshToken,
+      token: tokens.refreshToken,
+    })
     return (result = {...tokens})
   } else {
     throw new Error('Username Or Password Wrong!')

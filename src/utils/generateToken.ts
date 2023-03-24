@@ -11,6 +11,7 @@ export const generateToken = (payload: {userId: string}) => {
       expiresIn: '24h',
     }
   )
-  const exp = Math.floor(Date.now() / 1000) + 60 * 10
-  return {accessToken, refreshToken, exp}
+  const expAccessToken = Math.floor(Date.now() / 1000) + 60 * 10
+  const expRefreshToken = Math.floor(Date.now() / 1000) + 60 * 10 * 144
+  return {accessToken, refreshToken, expAccessToken, expRefreshToken}
 }
