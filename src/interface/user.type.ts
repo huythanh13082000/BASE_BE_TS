@@ -6,4 +6,5 @@ export interface UserType extends Document {
   updatedAt: Date
   account_type: 0 | 1 | 2
   phone: string
+  refreshToken: string
 }
